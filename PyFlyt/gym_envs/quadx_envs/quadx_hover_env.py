@@ -1,5 +1,4 @@
 """QuadX Hover Environment."""
-
 from __future__ import annotations
 
 from typing import Any, Literal
@@ -16,6 +15,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
     The target is to not crash for the longest time possible.
 
     Args:
+    ----
         sparse_reward (bool): whether to use sparse rewards or not.
         flight_mode (int): the flight mode of the UAV
         flight_dome_size (float): size of the allowable flying area.
@@ -41,6 +41,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
         """__init__.
 
         Args:
+        ----
             sparse_reward (bool): whether to use sparse rewards or not.
             flight_mode (int): the flight mode of the UAV
             flight_dome_size (float): size of the allowable flying area.
@@ -73,6 +74,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
         """reset.
 
         Args:
+        ----
             seed: seed to pass to the base environment.
             options: None
 
@@ -105,13 +107,13 @@ class QuadXHoverEnv(QuadXBaseEnv):
                     lin_vel,
                     lin_pos,
                     self.action,
-                    aux_state,
+                    #aux_state,
                 ],
                 axis=-1,
             )
         elif self.angle_representation == 1:
             self.state = np.concatenate(
-                [ang_vel, quaternion, lin_vel, lin_pos, self.action, aux_state], axis=-1
+                [ang_vel, quaternion, lin_vel, lin_pos, self.action], axis=-1 #aux_state], axis=-1
             )
 
     def compute_term_trunc_reward(self) -> None:

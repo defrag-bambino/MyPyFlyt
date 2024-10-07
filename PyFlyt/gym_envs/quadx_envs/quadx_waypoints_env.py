@@ -151,7 +151,7 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
                     lin_vel,
                     lin_pos,
                     self.action,
-                    aux_state,
+                    #aux_state,
                 ],
                 axis=-1,
             )
@@ -163,7 +163,7 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
                     lin_vel,
                     lin_pos,
                     self.action,
-                    aux_state,
+                    #aux_state,
                 ],
                 axis=-1,
             )
