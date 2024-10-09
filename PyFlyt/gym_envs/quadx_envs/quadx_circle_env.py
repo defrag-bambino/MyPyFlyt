@@ -1,4 +1,4 @@
-"""QuadX Hover Environment."""
+"""QuadX Circle Environment."""
 from __future__ import annotations
 
 from typing import Any, Literal
@@ -8,11 +8,11 @@ import numpy as np
 from PyFlyt.gym_envs.quadx_envs.quadx_base_env import QuadXBaseEnv
 
 
-class QuadXHoverEnv(QuadXBaseEnv):
-    """Simple Hover Environment.
+class QuadXCircleEnv(QuadXBaseEnv):
+    """Circle Environment.
 
     Actions are vp, vq, vr, T, ie: angular rates and thrust.
-    The target is to not crash for the longest time possible.
+    The target is to circle around (0, 0, 1) with a configurable radius (default=0.5m).
 
     Args:
     ----
@@ -24,6 +24,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
         agent_hz (int): looprate of the agent to environment interaction.
         render_mode (None | Literal["human", "rgb_array"]): render_mode
         render_resolution (tuple[int, int]): render_resolution.
+        circle_radius (float): the radius of the circle to circle around (default=0.5m)
 
     """
 
@@ -37,6 +38,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
         agent_hz: int = 40,
         render_mode: None | Literal["human", "rgb_array"] = None,
         render_resolution: tuple[int, int] = (480, 480),
+        circle_radius: float = 0.5,
     ):
         """__init__.
 
@@ -50,6 +52,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
             agent_hz (int): looprate of the agent to environment interaction.
             render_mode (None | Literal["human", "rgb_array"]): render_mode
             render_resolution (tuple[int, int]): render_resolution.
+            circle_radius (float): the radius of the circle to circle around (default=0.5m)
 
         """
         super().__init__(
@@ -67,6 +70,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
 
         """ ENVIRONMENT CONSTANTS """
         self.sparse_reward = sparse_reward
+        self.circle_radius = circle_radius
 
     def reset(
         self, *, seed: None | int = None, options: None | dict[str, Any] = dict()
@@ -126,8 +130,11 @@ class QuadXHoverEnv(QuadXBaseEnv):
                 self.env.state(0)[-1] - np.array([0.0, 0.0, 1.0])
             )
 
-            # how far are we from 0 roll pitch
-            angular_distance = np.linalg.norm(self.env.state(0)[1][:2])
+            # distance from the circle
+            circle_distance = np.linalg.norm(
+                self.env.state(0)[-1][:2] - np.array([0.0, 0.0])
+            ) - self.circle_radius
 
-            self.reward -= linear_distance + angular_distance
-            self.reward += 1.0
+            self.reward -= circle_distance * np.linalg.norm(self.env.state(0)[2]) * np.linalg.norm(self.env.state(0)[-2][:2])
+            self.reward += .1
+

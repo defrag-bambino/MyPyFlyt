@@ -10,6 +10,10 @@ register(
     entry_point="PyFlyt.gym_envs.quadx_envs.quadx_hover_env:QuadXHoverEnv",
 )
 register(
+    id="PyFlyt/QuadX-Circle-v3",
+    entry_point="PyFlyt.gym_envs.quadx_envs.quadx_circle_env:QuadXCircleEnv",
+)
+register(
     id="PyFlyt/QuadX-Waypoints-v3",
     entry_point="PyFlyt.gym_envs.quadx_envs.quadx_waypoints_env:QuadXWaypointsEnv",
 )
