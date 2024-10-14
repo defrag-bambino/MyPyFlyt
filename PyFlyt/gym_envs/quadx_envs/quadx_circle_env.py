@@ -135,6 +135,6 @@ class QuadXCircleEnv(QuadXBaseEnv):
                 self.env.state(0)[-1][:2] - np.array([0.0, 0.0])
             ) - self.circle_radius
 
-            self.reward -= (2 - circle_distance) * np.linalg.norm(self.env.state(0)[2]) * (1.0 - self.env.state(0)[-1][2])
-            self.reward += .1
+            self.reward += (2 - circle_distance) * np.linalg.norm(self.env.state(0)[2]) * np.abs((1.0 - self.env.state(0)[-1][2]))
+            self.reward -= .1
 
