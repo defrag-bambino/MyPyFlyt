@@ -66,7 +66,7 @@ class WaypointHandler:
         # reset the error
         self.new_distance = np.inf
         self.old_distance = np.inf
-        self.num_targets = 16
+        #self.num_targets = 16
 
         # we sample from polar coordinates to generate linear targets
         self.targets = np.zeros(shape=(self.num_targets, 3))
@@ -82,10 +82,10 @@ class WaypointHandler:
             self.targets[i] = np.array(
                 [x, y, z if z > self.min_height else self.min_height]
             )
-            self.targets = np.array(([.75, .75, 1.0], [-.75, .75, 1.0], [-.75, -.75, 1.0], [0.75, -.75, 1.0],
-                                     [.75, .75, 1.0], [-.75, .75, 1.0], [-.75, -.75, 1.0], [0.75, -.75, 1.0],
-                                     [.75, .75, 1.0], [-.75, .75, 1.0], [-.75, -.75, 1.0], [0.75, -.75, 1.0],
-                                     [.75, .75, 1.0], [-.75, .75, 1.0], [-.75, -.75, 1.0], [0.75, -.75, 1.0]))
+            #self.targets = np.array(([.75, .75, 1.0], [-.75, .75, 1.0], [-.75, -.75, 1.0], [0.75, -.75, 1.0],
+            #                         [.75, .75, 1.0], [-.75, .75, 1.0], [-.75, -.75, 1.0], [0.75, -.75, 1.0],
+            #                         [.75, .75, 1.0], [-.75, .75, 1.0], [-.75, -.75, 1.0], [0.75, -.75, 1.0],
+            #                         [.75, .75, 1.0], [-.75, .75, 1.0], [-.75, -.75, 1.0], [0.75, -.75, 1.0]))
             
 
         # yaw targets
