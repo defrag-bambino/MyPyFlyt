@@ -182,7 +182,7 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
         if not self.sparse_reward:
             self.reward += max(3.0 * self.waypoints.progress_to_next_target, 0.0)
             self.reward += 0.1 / self.waypoints.distance_to_next_target
-            self.reward -= 0.1 * np.abs(self.state["attitude"][2]) # yaw offset to 0
+            self.reward -= 0.2 * np.abs(self.state["attitude"][2]) # yaw offset to 0
 
         # target reached
         if self.waypoints.target_reached:

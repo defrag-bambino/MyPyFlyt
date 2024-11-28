@@ -114,8 +114,8 @@ class QuadXBaseEnv(gymnasium.Env):
         )
 
         """ ENVIRONMENT CONSTANTS """
-        self.start_pos = start_pos
-        self.start_orn = start_orn
+        self.start_pos = start_pos + np.random.uniform(-0.75, 0.75, size=(3,))
+        self.start_orn = start_orn + np.array([np.random.uniform(-0.5, 0.5), np.random.uniform(-0.5, 0.5), np.random.uniform(-np.pi, np.pi)])
         self.flight_mode = flight_mode
         self.flight_dome_size = flight_dome_size
         self.max_steps = int(agent_hz * max_duration_seconds)
