@@ -124,17 +124,81 @@ class QuadXCircleEnv(QuadXBaseEnv):
         """Computes the termination, truncation, and reward of the current timestep."""
         super().compute_base_term_trunc_reward()
 
+        # The following dense reward encourages circling about (0, 0, 1) at the desired circle radius.
+        # It consists of:
+        # 1. A distance penalty that penalizes deviation from the circle: the horizontal error
+        #    (i.e. difference between the current horizontal distance and the circle_radius)
+        #    and a vertical error (difference between the current altitude and 1.0).
+        # 2. A velocity penalty that penalizes deviation from a target tangential speed.
+        #    The target speed is configurable (via self.target_speed, defaulting to 0.5 m/s).
         if not self.sparse_reward:
-            # distance from 0, 0, 1 hover point
-            linear_distance = np.linalg.norm(
-                self.env.state(0)[-1] - np.array([0.0, 0.0, 1.0])
-            )
+            # Extract the linear velocity and position from the state.
+            # The state layout depends on the angle representation.
+            if self.angle_representation in [0, "euler"]:
+                # state = [ang_vel (3), ang_pos (3), lin_vel (3), lin_pos (3), previous_action (4)]
+                lin_vel = self.state[6:9]
+                lin_pos = self.state[9:12]
+            else:
+                # state = [ang_vel (3), quaternion (4), lin_vel (3), lin_pos (3), previous_action (4)]
+                lin_vel = self.state[7:10]
+                lin_pos = self.state[10:13]
 
-            # distance from the circle
-            circle_distance = np.linalg.norm(
-                self.env.state(0)[-1][:2] - np.array([0.0, 0.0])
-            ) - self.circle_radius
+            # Compute the error in position.
+            # We want the drone to maintain a horizontal distance equal to self.circle_radius
+            # from (0,0) and an altitude of 1.0.
+            horizontal_distance = np.linalg.norm(lin_pos[:2])
+            horizontal_error = np.abs(horizontal_distance - self.circle_radius)
+            vertical_error = np.abs(lin_pos[2] - 1.0)
+            distance_reward = - (horizontal_error**2 + vertical_error**2)
 
-            self.reward += (2 - circle_distance) * np.linalg.norm(self.env.state(0)[2]) * np.abs((1.0 - self.env.state(0)[-1][2]))
-            self.reward -= .1
+            # Compute the tangential speed error.
+            # The desired direction of travel is perpendicular to the radial vector in the horizontal plane.
+            if horizontal_distance > 1e-6:
+                unit_tangent = np.array([-lin_pos[1], lin_pos[0]]) / horizontal_distance
+            else:
+                unit_tangent = np.array([0.0, 0.0])
+            tangential_speed = np.dot(lin_vel[:2], unit_tangent)
+
+            # Get the target tangential speed; this is a configurable parameter.
+            target_speed = getattr(self, "target_speed", 0.5)  # default to 0.5 m/s if not defined
+            velocity_error = np.abs(tangential_speed - target_speed)
+            velocity_reward = - (velocity_error**2)
+
+            # Combine the rewards; the velocity term is weighted by 0.1 (this weight can be tuned).
+            self.reward = distance_reward + 0.1 * velocity_reward
+
+        else:
+            # Sparse reward version:
+            # The agent receives a reward of 1.0 only if both the distance error and the tangential
+            # velocity error are below small thresholds; otherwise, the reward is 0.
+            if self.angle_representation in [0, "euler"]:
+                lin_vel = self.state[6:9]
+                lin_pos = self.state[9:12]
+            else:
+                lin_vel = self.state[7:10]
+                lin_pos = self.state[10:13]
+
+            horizontal_distance = np.linalg.norm(lin_pos[:2])
+            horizontal_error = np.abs(horizontal_distance - self.circle_radius)
+            vertical_error = np.abs(lin_pos[2] - 1.0)
+
+            if horizontal_distance > 1e-6:
+                unit_tangent = np.array([-lin_pos[1], lin_pos[0]]) / horizontal_distance
+            else:
+                unit_tangent = np.array([0.0, 0.0])
+            tangential_speed = np.dot(lin_vel[:2], unit_tangent)
+            target_speed = getattr(self, "target_speed", 0.5)
+            velocity_error = np.abs(tangential_speed - target_speed)
+
+            # Define error thresholds for a successful circle.
+            distance_threshold = 0.1  # meters
+            velocity_threshold = 0.1  # m/s
+
+            if (horizontal_error < distance_threshold and
+                vertical_error < distance_threshold and
+                velocity_error < velocity_threshold):
+                self.reward = 1.0
+            else:
+                self.reward = 0.0
+
 
