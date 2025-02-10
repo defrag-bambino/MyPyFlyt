@@ -186,7 +186,7 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
 
         # target reached
         if self.waypoints.target_reached:
-            self.reward = 100.0
+            self.reward = 1.0
 
             # advance the targets
             self.waypoints.advance_targets()
