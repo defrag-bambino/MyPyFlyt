@@ -33,6 +33,10 @@ register(
     id="PyFlyt/QuadX-Ball-In-Cup-v3",
     entry_point="PyFlyt.gym_envs.quadx_envs.quadx_ball_in_cup_env:QuadXBallInCupEnv",
 )
+register(
+    id="PyFlyt/QuadX-Goal-v3",
+    entry_point="PyFlyt.gym_envs.quadx_envs.quadx_goal_env:QuadXGoalEnv",
+)
 
 # Fixedwing Envs
 register(
